@@ -1,0 +1,6 @@
+in the folder,
+
+1. run startup.m
+2. run demo/link_predict_demo.m
+Change route in startup.m
+The main DP iteration process file is src/afftenfw.m
