@@ -38,7 +38,7 @@ post_processed = set_opts(opts, 'post_processed', 1);
 verbose = set_opts(opts, 'verbose', 1);
 AUC_size = set_opts(opts, 'AUCsize', 1e6);
 err_type = set_opts(opts, 'err_type', 1);
-rho_s = set_opts(opts, 'rho', 0.4);
+rho_s = set_opts(opts, 'rho', 0.75);
 
 A.vals = data_train.vals;
 A.nmodes = ndims(data_train);
@@ -49,19 +49,20 @@ D = A.nmodes;
 Asize = A.size;
 nnzA = length(A.subs);
 
-
+disp(norm(data_train(:,:,8)));
+disp(Asize(3));
 %rho = .75;  %²ÉÑùÂÊ
 %Omega =sptenrand([5 4 2])<=rho;
 %L = maxl2norm(A,Omega);
 max = 0;
 L=1;
 %print(opts(2));
-%for i=1:Asize(1)
- %   buf=norm(A(i,:),'fro');
-%    if max<buf
- %       max = buf;
-%    end
-%end
+for i=1:Asize(3)
+    buf=norm(data_train(:,:,i));
+    if max<buf
+       max = buf;
+    end
+end
 
 L=max;
 fac_size = sqrt(Asize);
