@@ -17,9 +17,9 @@ clear global
 
 
 
-factor_dims = 125;
-factor_dims = [factor_dims, factor_dims, 3];
-core_dims   = [3, 3, 3];
+factor_dims = 50;
+factor_dims = [factor_dims, factor_dims, 50];
+core_dims   = [20, 20, 20];
     
 % Problem setting
 U = cell(1, length(core_dims));
@@ -54,23 +54,23 @@ end
 %disp(cell2mat(traX(1)));
 
 
-D = 3;
+D = 20;
 
-T =50;
-for timet=1:6
+T =400;
+%for timet=1:6
     
-    delta = 10^(-(timet));
-    
+   % delta = 10^(-(timet));
+     delta = 10^(-6);
     epsilon = log(1/delta)/2;
   %   epsilon = timet;
-    q(1,timet)=epsilon;
+   % q(1,timet)=epsilon;
     [n,k]=size(cell2mat(traX(1)));
-    m=3;
+    m=20;
     beta = 10^(-2);disp(epsilon);
 
     Y=zeros(n,k);
     max = 0;
-    B=3;
+    B=10;
     %print(opts(2));
     for i=1:m
         tempp=cell2mat(traX(i));
@@ -82,7 +82,7 @@ for timet=1:6
     end
 
     L=max;
-
+  
 
     decay = 0.8;
     Xnew=zeros(n,k,m);
@@ -107,7 +107,7 @@ for timet=1:6
             if t==1
 
 
-                lamda=2*10^(-5);
+                lamda=0.2;
               %  disp(AA(:,:,j))
                 [Xi,YYi]=localpart(lamda/L,t,L,AA(:,:,j),sigma,m,n,k,beta,D,AA(:,:,j));
                 Z(:,:,j)=Xi;
@@ -124,6 +124,7 @@ for timet=1:6
     end
         Z=ifft(Z,[],3);
         Z=Z+normrnd(0,sigma^2);
+         p(1,t)=rmse(Z,A);
 
 
 
@@ -135,10 +136,10 @@ for timet=1:6
       %  clear Xnew;
      
     end
-     p(1,timet)=rmse(Z,A);
-end
+   %  p(1,timet)=rmse(Z,A);
+%end
 
-    
+    q=[1:T];
     plot(q,p);
     %
     %disp(Xnew)

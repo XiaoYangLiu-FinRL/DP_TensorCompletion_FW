@@ -12,7 +12,9 @@ Xnew=Ulocal*Slocal*Vlocal';
 %disp(Xnew);
 tnew=(1+sqrt(1+4*told))/2;
 R=Xnew+((told-1)/tnew)*(Xnew-Xold);
+disp(size(R));
 Xi=R-1/L*(R-A);
+disp(size(Xi));
 YYi=Xnew;
 
 

@@ -14,68 +14,45 @@ clear global
 % data_test = data .* P_test;
 
 %maxNumCompThreads(1);
+data = 'movielens'; %数据文件名
+path = strcat('C:\Users\ChenKx\Desktop\DP_FW\data\',data,'.mat');
+load(path);  
+addpath(genpath('C:\Users\ChenKx\Desktop\DP_FW\'));
+addpath(genpath('C:\Users\ChenKx\Desktop\DP_FW\'));
+DD = input;   %读取数据文件
+[m,n] = size(DD); %返回data数据文件里的矩阵大小
+%fprintf('data has been loaded: m = %d, n = %d; \n', m,n);
 
+%初始化global部分所需的参数
+rho = .75;  %采样率
+Omega = rand(m,n)<=rho;
 
-
-factor_dims = 125;
-factor_dims = [factor_dims, factor_dims, 3];
-core_dims   = [3, 3, 3];
-    
-% Problem setting
-U = cell(1, length(core_dims));
-for i = 1:length(core_dims)
-    U{i} = randn(factor_dims(i), core_dims(i));
-    % [U{i}, ~] = qr(U{i}, 0);
-end
-C = randn(core_dims);
-
-% Generate low-rank tensor
-gnd = ttensor(tensor(C), U);
-
-gnd = double(gnd);
-gnd = gnd - mean(gnd(:));
-
-X = gnd + randn(size(gnd))*mean(abs(gnd(:)))*0.05;
-
-ratio = 5*prod(core_dims)/sqrt(prod(factor_dims));
-O = rand(size(X));
-idx = find(O < ratio);
-
-M = zeros(size(O));
-M(idx) = 1;
-
-clear O idx;
-
-traX = cell(size(M, 3), 1);
-for i = 1:size(M, 3)
-    traX{i} = sparse(X(:,:,i).*M(:,:,i));
-end
-%disp(X);
 %disp(cell2mat(traX(1)));
 
 
-D = 3;
+D = 20;
 
 T =50;
-for timet=1:3
+for timet=1:20
     
     delta = 10^(-(timet));
     
     epsilon = log(1/delta)/2;
   %   epsilon = timet;
     q(1,timet)=epsilon;
-    [n,k]=size(cell2mat(traX(1)));
-    m=3;
+   
+    m=20;
     beta = 10^(-2);disp(epsilon);
 
-    Y=zeros(n,k);
+    Y=zeros(m,n);
     max = 0;
     B=3;
     %print(opts(2));
     for i=1:m
-        tempp=cell2mat(traX(i));
+       
+       
 
-        buf=normest(tempp);
+        buf=norm(DD(i,:));
         if max<buf
            max = buf;
         end
@@ -85,53 +62,40 @@ for timet=1:3
 
 
     decay = 0.8;
-    Xnew=zeros(n,k,m);
-    Xold=zeros(n,k,m);
-    A=zeros(n,k,m);
+    Xnew=zeros(m,n);
+    Xold=zeros(m,n);
+    A=zeros(m,n);
     sigma=(2*B*sqrt(log(1/delta)))/epsilon/sqrt(T);
     %ssi=sqrt(8*sigma^2*((m+n+k)*log(2*D/log(3/2))+log(2/delta)))/1000
     disp(sigma);
-    for mmm=1:m
-        Xold(:,:,mmm)=cell2mat(traX(mmm));
-        A(:,:,mmm)=cell2mat(traX(mmm));
-    end
-
-
-    
-     Z=zeros(n,k,m);
-      Pinital=parafac_als(A,10) ;
-      AP=Pinital.U{1};
-      BP=Pinital.U{2};
-      CP=Pinital.U{3};
-      Plambda=Pinital.lmbda
+    AA=DD;
+     Z=zeros(m,n);
     for t=1:T
 
-     
+     Z=fft(Z);
 
-        for j=1:m 
+        for j=1:m
             if t==1
 
 
                 lamda=2*10^(-5);
               %  disp(AA(:,:,j))
-                [Xi,YYi]=localpart(lamda/L,t,L,AP,BP,Plambda(k)*CP(k),sigma,m,n,k,beta,D,AA(:,:,j));
-                Z(:,:,j)=Xi;
+                [U,S,V]=svd(AA);
+                [Xi,YYi]=localpartcp(lamda,t,AA(j,:),U(j,:),S(j,j),V,sigma,m,n,beta,D,AA(j,:));
+                Z(j,:)=Xi;
             else
                 lamda=2*10^(-5);
 
                 %disp(Z)
-                Yi=Z(:,:,j);
-                [Xi,YYi]=localpart(lamda/L,t,L,PPA,PPB,PPlamda(k)*PPC(k),sigma,m,n,k,beta,D,AA(:,:,j));
-                Z(:,:,j)=Xi;
+                [U,S,V]=svd(Z);
+                Yi=Z(j,:);
+                [Xi,YYi]=localpartcp(lamda,t,Yi,U(j,:),S(j,j),V,sigma,m,n,beta,D,AA(j,:));
+                Z(j,:)=Xi;
 
           % Z=Z+normrnd(0,sigma^2);
         end
     end
-        P=parafac_als(Z,2) ;
-        PPA=P.U{1};
-        PPB=P.U{2};
-        PPC=P.U{3};
-        PPlamda=P.lamda;
+        Z=ifft(Z);
         Z=Z+normrnd(0,sigma^2);
 
 
