@@ -1,10 +1,10 @@
-function r=projection(D,L,Omega)
+function r=projection(D,L)
 
 [m,n]=size(D);
-DD=omega(D,Omega);
+
 max = 0;
 for i=1:m
-    buf=norm(DD(i,:));
+    buf=norm(D(i,:));
     if max<buf
         max = buf;
     end
