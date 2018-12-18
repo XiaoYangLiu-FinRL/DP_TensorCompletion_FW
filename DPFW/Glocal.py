@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 def Omega(X):
     for i in range(len(X)):
-        if X[i]>0 and X[i]!=None:
+        if  X[i]!=None:
             X[i]=X[i]
         else:
             X[i]=0
@@ -18,11 +18,11 @@ def Omegamatrix(Xx):
     (m,n)=np.shape(Xx)
     for i in range(m):
         for j in range(n):
-            if Xx[i][j]>0 and Xx[i][j]!=None:
-                Xx[i][j]=Xx[i][j]
+            if  Xx[i][j]!=None:
+                X[i][j]=Xx[i][j]
             else:
-                Xx[i][j]=0
-    return Xx[i][j]
+                X[i][j]=0
+    return X
 
 def maxnorm(YY):
     (m,n)=np.shape(YY);
@@ -110,7 +110,7 @@ belta = 10
 
 
 k = 2 * np.linalg.matrix_rank(data)
-k=400
+
 (m, n) = np.shape(data['input'])
 di=[]
 
@@ -123,7 +123,7 @@ for eplisoni in eplison:
 #eplisoni=0.1
 
     #print(math.log(1/delta))
-    sigma=math.pow(L,2)*math.sqrt(32*T*np.log10(1/delta))/eplisoni
+    sigma=math.pow(L,2)*math.sqrt(64*T*np.log10(1/delta))/eplisoni
     v=np.zeros(n)
     lamda=0
     Y=np.zeros((m,n))
@@ -141,11 +141,9 @@ for eplisoni in eplison:
             Y[i,:]=YYi
             W=W+AN
         #print(np.size(W))
-        for i in range(n):
-            for j in range(n):
-                W1[i][j] =W[i][j]+ np.random.normal(0, sigma)
-
-        lamdasqrt, vv = np.linalg.eig(W1)
+        W=W+np.random.normal(0, sigma)
+     
+        lamdasqrt, vv = np.linalg.eig(W)
    # print(np.real(math.fabs(sorted(lamdasqrt)[1])))
         lamda=math.sqrt(int(np.real(math.fabs(sorted(lamdasqrt)[1]))))
     #print lamda
