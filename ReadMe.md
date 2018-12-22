@@ -6,9 +6,9 @@
 
 ## Step 3. Change route in startup.m
 
-    The main DP iteration process file is src/acctenfw.m
+The main DP iteration process file is src/acctenfw.m
 
-    目前直接加入的一个给定的eplision，具体加入在afftenfw.m文件中
+目前直接加入的一个给定的eplision，具体加入在afftenfw.m文件中
 
 ```
 delta = 10^(-8);
