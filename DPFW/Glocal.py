@@ -4,6 +4,13 @@ import scipy.io as scio
 import numpy as np
 import io
 import matplotlib.pyplot as plt
+import random
+def Synthetic():
+   # u=np.zeros((500000,1),np.dtype='float16')
+    u = np.random.random((500000, 1))
+    v = np.random.random((400, 1))
+    YYY = np.dot(u, np.transpose(v))
+    return YYY
 
 def Omega(X):
     for i in range(len(X)):
@@ -13,16 +20,23 @@ def Omega(X):
             X[i]=0
     return X
 
-
-def Omegamatrix(Xx):
-    (m,n)=np.shape(Xx)
+def dataprocess(X):
+    (m, n) = np.shape(X)
     for i in range(m):
-        for j in range(n):
-            if  Xx[i][j]!=None:
-                X[i][j]=Xx[i][j]
-            else:
-                X[i][j]=0
+        mean=sum(X[i,:])/len(X[i:,])
+        X[i,:]=X[i,:]-mean
     return X
+
+def Omegamatrix(Xx,samplenum):
+    (m,n)=np.shape(Xx)
+    X=np.zeros((m,n))
+    # = np.zeros(n)
+    for i in range(m):
+        loc=np.random.randint(0,n,size=samplenum)
+        for j in loc:
+            X[i][j]=1
+    Result=X*Xx
+    return Result
 
 def maxnorm(YY):
     (m,n)=np.shape(YY);
@@ -32,29 +46,33 @@ def maxnorm(YY):
         temp=np.linalg.norm(YY[i,:],ord=2)
         if maxx<temp:
             maxx=temp
-    return maxx
+    return math.sqrt(maxx)
 
-def update(n,i,k,v,lambda1,T,t,L,Yi,Di):
+def update(n,k,v,lambda1,T,t,L,Yi,Di):
+    YA = np.zeros(n)
+    AN=np.zeros((n,n))
     if t==0:
-        Yi=np.zeros(n)
-        Ai=np.zeros(n)
+        Yiii=np.zeros(n)
     else:
-        Ai=Omega(Yi-Di)
-    #print np.shape(v)
-    ui=np.multiply(Ai,v)*[1/lambda1]
-    Yitemp=Yi*[(1-1/T)],-ui*np.transpose(v)*[k/T]
-    YA= np.zeros(n)
-   # print(Yitemp)
-   # print(Omega(Yitemp))
-    #print(L/np.linalg.norm(Omega(Yitemp),ord=2))
-    if np.linalg.norm(Omega(Yitem),ord=2)!=0:
-        if L/np.linalg.norm(Omega(Yitemp),ord=2)<1 :
-            YA=Yitemp*[L/np.linalg.norm(Omega(Yitemp),ord=2)]
+        Yiii=Yi
+        #print Yii
+    #print Y
+    Ai=Omega(Yiii-Di)
+    #print Ai
+    ui=(1.0/lambda1)*np.multiply(Ai,v)
+    #print np.dot(ui,np.transpose(v))
+    Yite=(1.0-1.0/T)*Yiii-float(k)/T*np.dot(ui,np.transpose(v))
+    #print np.linalg.norm(Yite,ord=2)
+    if np.linalg.norm(Yite,ord=2)!=0:
+       # print L/np.linalg.norm(Yitemp,ord=2)
+        if L/np.linalg.norm(Yite,ord=2)<1 :
+            YA=L/np.linalg.norm(Yite,ord=2)*Yitemp
         else:
-            YA=Yitemp
-    Ai=Omega(YA-Yi)
-
-    AN=np.transpose(Ai)*Ai
+            YA=Yite
+        #print YA
+    #print YA.shape
+    Ai=YA-Di
+    AN=np.dot(np.transpose(Ai),Ai)
     return YA,AN
 
 
@@ -98,60 +116,50 @@ def rmsee(target,prediction):
 
 
 
-dataFile = 'data/movielens.mat'
-data = scio.loadmat(dataFile)
-datainput=data['input']
+# dataFile = 'data/movielens_10m_top400.mat'
+# data = scio.loadmat(dataFile)
+# datainput1=data['input']
 delta=math.pow(10,-6)
-eplison=[0.1,0.5,1.0,2.0,5.0]
-
+eplison=[0.1,1.0,2.0,5.0]
+datainput1=Synthetic()
+#datainput2=dataprocess(datainput1)
+#L = maxnorm(datainput)
+#L=math.pow(n,1.0/4)
+T = 5
+belta = 1
+datainput=Omegamatrix(datainput1,80)
 L = maxnorm(datainput)
-T = 20
-belta = 10
-
-
-k = 2 * np.linalg.matrix_rank(data)
-
-(m, n) = np.shape(data['input'])
+k = np.linalg.matrix_rank(datainput1)
+#print L
+#k=30000
+#(m, n) = np.shape(data['input'])
+(m,n)=np.shape(datainput1)
 di=[]
-
-#for iii in range(m):
-   # sunm=sum(datainput[iii,:])/len(datainput[iii,:])
- #   datainput[iii, :]=datainput[iii,:]-sunm
-
+#print datainput
 for eplisoni in eplison:
-
-#eplisoni=0.1
-
-    #print(math.log(1/delta))
     sigma=math.pow(L,2)*math.sqrt(64*T*np.log10(1/delta))/eplisoni
+    print sigma
     v=np.zeros(n)
     lamda=0
     Y=np.zeros((m,n))
-    W1=np.zeros((n,n))
-    Yi=np.zeros(n)
-    Yitem=np.zeros(n)
-    #print(n)
     for t in range(T):
         W=np.zeros((n,n))
-        lambda1=int(lamda)+int(math.sqrt(sigma*math.log(n/belta))*math.pow(n,1/4))
+        lambda1=int(lamda)+int(math.sqrt(sigma*math.log(n/belta))*math.pow(n,1.0/4))
+        #print lambda1
         for i in range(m):
-            Di=datainput[i]
-            [YYi,AN]=update(n,i,k,v,lambda1,T,t,L,Yi,Di)
-            Yi=YYi
-            Y[i,:]=YYi
-            W=W+AN
-        #print(np.size(W))
-        W=W+np.random.normal(0, sigma)
-     
-        lamdasqrt, vv = np.linalg.eig(W)
-   # print(np.real(math.fabs(sorted(lamdasqrt)[1])))
-        lamda=math.sqrt(int(np.real(math.fabs(sorted(lamdasqrt)[1]))))
-    #print lamda
-        v=vv[:,1]
+            Di=datainput[i,:]
+            Yii,AN=update(n,k,v,lambda1,T,t,L,Y[i,:],Di)
 
-    di.append(rmsee(Y,datainput))
+            Y[i,:]=Yii
+            W=W+AN
+        W=W+ np.random.normal(0,sigma )
+        lamdasqrt, vv = np.linalg.eig(W)
+        lamda=math.sqrt(int(np.real(math.fabs(sorted(lamdasqrt)[1]))))
+        v=np.transpose(vv[1,:])
+    #print Y
+    di.append(rmse(Y,datainput1))
     print di
-plt.plot(epsilon, di, '-r^', 'MarkerEdgeColor','b','MarkerFaceColor','b', 'MarkerSize', 10);
+plt.plot(eplison, di, '-r^');
 plt.xlabel('Epsilon');
 plt.ylabel('RMSE');
 plt.grid(color='black',linewidth='0.3',linestyle='--')
