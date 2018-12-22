@@ -27,3 +27,5 @@ Newcomer is used to iteration step.
 ```
 lambda_new = (1+sqrt(1+4*lambda_old^2))/2+sqrt(8*sigma^2*(cumsum(Asize)*log(2*D/log(3/2))+log(2/delta)));
 ```
+
+> 注意: matrix completion 里面是不含DP的矩阵还原算法
