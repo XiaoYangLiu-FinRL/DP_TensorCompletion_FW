@@ -66,7 +66,7 @@ def update(n,k,v,lambda1,T,t,L,Yi,Di):
     if np.linalg.norm(Yite,ord=2)!=0:
        # print L/np.linalg.norm(Yitemp,ord=2)
         if L/np.linalg.norm(Yite,ord=2)<1 :
-            YA=L/np.linalg.norm(Yite,ord=2)*Yitemp
+            YA=L/np.linalg.norm(Yite,ord=2)*Yite
         else:
             YA=Yite
         #print YA
@@ -116,24 +116,24 @@ def rmsee(target,prediction):
 
 
 
-# dataFile = 'data/movielens_10m_top400.mat'
-# data = scio.loadmat(dataFile)
-# datainput1=data['input']
+dataFile = 'data/movielens_10m_top400.mat'
+data = scio.loadmat(dataFile)
+datainput2=data['input']
 delta=math.pow(10,-6)
 eplison=[0.1,1.0,2.0,5.0]
-datainput1=Synthetic()
-#datainput2=dataprocess(datainput1)
+#datainput1=Synthetic()
+datainput1=dataprocess(datainput2)
 #L = maxnorm(datainput)
 #L=math.pow(n,1.0/4)
-T = 5
-belta = 1
+T = 50
+belta = 10
 datainput=Omegamatrix(datainput1,80)
 L = maxnorm(datainput)
-k = np.linalg.matrix_rank(datainput1)
+#k = np.linalg.matrix_rank(datainput1)
 #print L
-#k=30000
+k=30000
 #(m, n) = np.shape(data['input'])
-(m,n)=np.shape(datainput1)
+(m,n)=np.shape(datainput)
 di=[]
 #print datainput
 for eplisoni in eplison:
@@ -159,11 +159,11 @@ for eplisoni in eplison:
     #print Y
     di.append(rmse(Y,datainput1))
     print di
-plt.plot(eplison, di, '-r^');
-plt.xlabel('Epsilon');
-plt.ylabel('RMSE');
-plt.grid(color='black',linewidth='0.3',linestyle='--')
-plt.show()
+#plt.plot(eplison, di, '-r^');
+#plt.xlabel('Epsilon');
+#plt.ylabel('RMSE');
+#plt.grid(color='black',linewidth='0.3',linestyle='--')
+#plt.show()
 
 
 
