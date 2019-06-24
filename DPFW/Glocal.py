@@ -96,8 +96,8 @@ def update(Ome,n,k,v,lambda1,T,t,L,Yi,Di):
     #Aii = []
     #Aii.append(Ai)i
     if t!=0:
-       # Aii = []
-       # Aii.append(Ai)
+        Aii = []
+        Aii.append(Ai)
         #print Aii
         AN=np.dot(np.transpose(Aii),Aii)
     else:
